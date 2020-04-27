@@ -1,4 +1,3 @@
-
  // read dht 22 sensor (GPIO PIN 4)
 var sensor = require("node-dht-sensor");
 var tempCelcius;
@@ -7,7 +6,6 @@ var humidtyReading;
 const path = require('path');
 var express = require('express')
  
-//app.use(express.static('/home/pi/GrowRoomProject/indoor-garden/frontend/startbootstrap-sb-admin-2-gh-pages/'))
 var app = express()
 app.use(express.static('/home/pi/GrowRoomProject/indoor-garden/frontend/startbootstrap-sb-admin-2-gh-pages/'))
  app.get('/', function(req, res) {
