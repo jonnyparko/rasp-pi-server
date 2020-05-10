@@ -8,7 +8,11 @@ https://www.amazon.com/HiLetgo-Temperature-Humidity-Electronic-Practice/dp/B0795
 # This is a rest-api server using node.js.
 It leverages the express module.
 
-# How to run -  install node.js. Install modules express and node-dht-sensor. Npm i pi-camera-connect. Run node server.js. 
+# How to run -  install node.js. Install modules express and node-dht-sensor. Npm i pi-camera-connect. Run node server.js. Setup mongoDB Atlas Cloud. Create cluster. 
+
+# Database - MongoDB https://www.mongodb.com. Using Atlas Cloud. 
+
+more info on MongoDB - https://www.w3schools.com/nodejs/nodejs_mongodb.asp
 
 # Front end can be found here - https://github.com/jonnyparko/indoor-garden.git
 
