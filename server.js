@@ -1,8 +1,8 @@
  // read dht 22 sensor (GPIO PIN 4)
 var sensor = require("node-dht-sensor");
-var tempCelcius;
-var tempFarenheit;
-var humidtyReading;
+var tempCelcius = 0;;
+var tempFarenheit = 0;;
+var humidtyReading = 0;;
 const path = require('path');
 var express = require('express')
 const { StillCamera } = require("pi-camera-connect");
@@ -11,15 +11,17 @@ var userName;
 var password;
      
 // START OF DB ACCESS                
-console.log("*********Starting grow room server********************");        
+console.log("*********Starting grow room server********************"); 
+
+// read dbAccess.json file for username and password       
 fs.readFile('./dbAccess.json', 'utf8', (err, jsonString) => {
     if (err) {
-        console.log("Error reading db access file from disk:", err)
-        return
+        console.log("Error reading db access file from disk:", err);
+        return;
     }
     try {
-      console.log("*********Reading dbAccess file.********************")
-      const dbAccess = JSON.parse(jsonString)
+      console.log("*********Reading dbAccess file.********************");
+      const dbAccess = JSON.parse(jsonString);
       userName = dbAccess.userName;
       password = dbAccess.password;
       var mongo = require('mongodb');
@@ -44,32 +46,39 @@ fs.readFile('./dbAccess.json', 'utf8', (err, jsonString) => {
           tempCelcius = temperature;
           humidtyReading = humidity;
           console.log(temperature);
-        }
-        });
-        var cToFahr = tempCelcius * 9 / 5 + 32;
-        var growRoomReadings = {
-          tempFarenheit: cToFahr, 
-          tempCel: tempCelcius,
-          humidity: humidtyReading
-        };
-        
-        res.json(growRoomReadings);
-        
-        // make sure we have a reading before uploading
-        if (growRoomReadings.tempCel !== null ) {
-          var MongoClient = require('mongodb').MongoClient;
-          var url = "mongodb+srv://" + userName + ":" + password + "@cluster0-4r75h.mongodb.net/test?retryWrites=true&w=majority";
+          
+          var cToFahr = tempCelcius * 9 / 5 + 32;
+          var timeDate = new Date();
 
-          MongoClient.connect(url, function(err, db) {
-            if (err) throw err;
-            var dbo = db.db("mydb");
-            dbo.collection("indoor-garden").insertOne(growRoomReadings, function(err, res) {
+          var growRoomReadings = {
+            tempFarenheit: cToFahr, 
+            tempCel: tempCelcius,
+            humidity: humidtyReading,
+            timeDate: timeDate
+          };
+          
+          res.json(growRoomReadings);
+          
+          // make sure we have a reading before uploading to db
+          if (growRoomReadings.tempCel !== null ) {
+            var MongoClient = require('mongodb').MongoClient;
+            var url = "mongodb+srv://" + userName + ":" + password + "@cluster0-4r75h.mongodb.net/test?retryWrites=true&w=majority";
+
+            MongoClient.connect(url, function(err, db) {
               if (err) throw err;
-              console.log("1 document inserted");
-              db.close();
+              var dbo = db.db("mydb");
+              dbo.collection("indoor-garden").insertOne(growRoomReadings, function(err, res) {
+                if (err) throw err;
+                console.log("1 new reading inserted");
+                db.close();
+              });
             });
-          });
+            
+          }
         }
+        
+        });
+        
       })
 
       // still image capture
@@ -81,12 +90,29 @@ fs.readFile('./dbAccess.json', 'utf8', (err, jsonString) => {
           res.sendFile('/home/pi/GrowRoomProject/backend/still-image.jpg');
         });
       });
+      
+      // read data from db for temp/humditiy
+      app.get('/load', function(req,res){
+        var MongoClient = require('mongodb').MongoClient;
+        var url = "mongodb+srv://" + userName + ":" + password + "@cluster0-4r75h.mongodb.net/test?retryWrites=true&w=majority";
+
+        MongoClient.connect(url, function(err, db) {
+          if (err) throw err;
+          var dbo = db.db("mydb");
+          dbo.collection("indoor-garden").find({}, {_id:0}).toArray(function(err, result) {
+            if (err) throw err;
+            console.log("reading data: " + result.length);
+            res.json(result);
+            db.close();
+          });
+        });
+      });
        
       app.listen(3000)
     // END OF REST API
         
 } catch(err) {
-        console.log('Error parsing JSON string:', err)
+        console.log('Error parsing JSON string for DB access file:', err)
     }
 })
 // END OF DB ACCESS
