@@ -17,3 +17,7 @@ more info on MongoDB - https://www.w3schools.com/nodejs/nodejs_mongodb.asp
 # Front end can be found here - https://github.com/jonnyparko/indoor-garden.git
 
 # Tested on raspberry pi model B+
+
+# you can set this to run on reboot and run the database cron job by installing node module pm2.
+cron jobs can be found here - https://github.com/jonnyparko/rasp-pi-cron-jobs
+You will need to create a file dbAccess.json for the username and password of you mongodb atlas account. 
