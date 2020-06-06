@@ -87,6 +87,23 @@ fs.readFile('./dbAccess.json', 'utf8', (err, jsonString) => {
       });
     });
 
+    // get data from db for temp/humditiy
+    app.post('/loadDates', function (req, res) {
+      var MongoClient = require('mongodb').MongoClient;
+      var url = "mongodb+srv://" + userName + ":" + password + "@cluster0-4r75h.mongodb.net/test?retryWrites=true&w=majority";
+
+      MongoClient.connect(url, function (err, db) {
+        if (err) throw err;
+        var dbo = db.db("mydb");
+        dbo.collection("indoor-garden").find({}, { _id: 0 }).toArray(function (err, result) {
+          if (err) throw err;
+          console.log("reading data: " + result.length);
+          res.json(result);
+          db.close();
+        });
+      });
+    });
+
     app.listen(3000)
     // END OF REST API
 
