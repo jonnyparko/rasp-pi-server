@@ -1,8 +1,9 @@
 // read dht 22 sensor (GPIO PIN 4)
 var sensor = require("node-dht-sensor");
-var tempCelcius = 0;;
-var humidtyReading = 0;;
-var express = require('express')
+var tempCelcius = 0;
+var humidtyReading = 0;
+var express = require('express');
+const cors = require('cors'); 
 const { StillCamera } = require("pi-camera-connect");
 var fs = require('fs')
 var userName;
@@ -30,6 +31,7 @@ fs.readFile('./dbAccess.json', 'utf8', (err, jsonString) => {
 
     // START OF REST API  
     var app = express()
+    app.use(cors());
     app.use(express.static('/home/pi/GrowRoomProject/indoor-garden/frontend/startbootstrap-sb-admin-2-gh-pages/'))
     app.use(express.static('/home/pi/GrowRoomProject/backend/'));
 
